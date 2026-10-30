@@ -55,7 +55,7 @@ Item {
         text:history.continueIndex>=0?"Continue watching":"Recent videos";color:UiPalette.text;font.pixelSize:11;height:16
     }
     ListView{
-        id:list;anchors{left:actions.left;right:actions.right;top:continueLabel.bottom;topMargin:4;bottom:detail.top;bottomMargin:10}
+        id:list;objectName:"recentVideosList";anchors{left:actions.left;right:actions.right;top:continueLabel.bottom;topMargin:4;bottom:detail.top;bottomMargin:10}
         model:history.homeModel;clip:true;spacing:3;boundsBehavior:Flickable.StopAtBounds;keyNavigationEnabled:false
         delegate:Rectangle{
             id:row;required property var record;required property int index

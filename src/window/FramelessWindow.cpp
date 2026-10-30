@@ -319,7 +319,8 @@ bool FramelessWindow::eventFilter(QObject *watched,QEvent *e) {
         if((mouse->position()-m_pressPosition).manhattanLength()>=QGuiApplication::styleHints()->startDragDistance()) {m_dragCandidate=false;startSystemMove();return true;}
     }
     if(e->type()==QEvent::Wheel) {
-        if(m_popupOpen)return false;
+        // Let Home's ListView consume wheel input instead of changing volume.
+        if(m_popupOpen||(m_controller->resumeStore()&&m_controller->resumeStore()->homeVisible()&&!mini()))return false;
         auto *wheel=static_cast<QWheelEvent*>(e);
         const double steps=wheel->angleDelta().y()/120.0;
         if(steps!=0) {if(seekAt(wheel->position()))m_controller->seek(steps*m_controller->settings()->values().value("seekStep",5).toDouble());else m_controller->adjustVolume(steps*5);}

@@ -24,6 +24,7 @@
 #include <QQuickItem>
 #include <QKeyEvent>
 #include <QMouseEvent>
+#include <QWheelEvent>
 #include <windows.h>
 #include <objbase.h>
 #include <clocale>
@@ -92,6 +93,27 @@ int main(int argc,char **argv) {
                     // engine loading cannot delay the first visible frame.
                     if(!window.initializeUi(&diagnostics,profile!="engine")) {app.exit(3);return;}
                     Log::write("QML_LOADED_MS="+QString::number(diagnostics.clock.elapsed()));
+                    if(qEnvironmentVariable("FLOW_SCENARIO")=="home-wheel"&&qEnvironmentVariableIsSet("FLOW_TEST_BACKGROUND")) {
+                        QTimer::singleShot(1500,&window,[&]{
+                            auto *list=window.contentItem()->findChild<QQuickItem*>("recentVideosList");
+                            if(!list){Log::write("HOME_WHEEL missing_list");return;}
+                            const auto local=list->mapToScene(QPointF(list->width()/2,list->height()/2));
+                            const auto global=window.mapToGlobal(local.toPoint());
+                            const auto before=list->property("contentY").toDouble();const auto volume=controller.volume();
+                            QWheelEvent down(local,global,QPoint(),QPoint(0,-120),Qt::NoButton,Qt::NoModifier,Qt::NoScrollPhase,false);
+                            down.setTimestamp(diagnostics.clock.elapsed());
+                            QCoreApplication::sendEvent(&window,&down);
+                            QTimer::singleShot(350,&window,[&,list,local,global,before,volume]{
+                                const auto after=list->property("contentY").toDouble();
+                                QWheelEvent up(local,global,QPoint(),QPoint(0,120),Qt::NoButton,Qt::NoModifier,Qt::NoScrollPhase,false);
+                                up.setTimestamp(diagnostics.clock.elapsed());
+                                QCoreApplication::sendEvent(&window,&up);
+                                QTimer::singleShot(350,&window,[&,list,before,after,volume]{
+                                    Log::write(QString("HOME_WHEEL before=%1 down=%2 up=%3 volumeBefore=%4 volumeAfter=%5 count=%6").arg(before).arg(after).arg(list->property("contentY").toDouble()).arg(volume).arg(controller.volume()).arg(list->property("count").toInt()));
+                                });
+                            });
+                        });
+                    }
                     if(profile!="qt")controller.start();
                 },Qt::QueuedConnection);
                 Log::write("SHOW_CALLED_MS="+QString::number(diagnostics.clock.elapsed()));
