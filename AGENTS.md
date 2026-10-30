@@ -1,4 +1,10 @@
-# User constraints
+# FlowVault repository scope
+
+- 2026-10-30: This checkout is `E:\Codes\FlowVault`, with origin `https://github.com/SayemHasan74/FlowVault.git`. All future local-library/Crunchyroll-style development belongs here. Do not change or push to the original `E:\Codes\FlowPlayer` checkout or `SayemHasan74/Player` repository as part of FlowVault work.
+- The starting player baseline is commit `3019742`, including the latest transparency changes. The library is planned, not implemented. Preserve the existing player behavior until a scoped change is requested. Use separate build/output directories and isolate development settings/history from the installed FlowPlayer before running a modified app.
+- For coding tasks, read and apply `C:/Users/SAM/.codex/skills/karpathy-guidelines/SKILL.md`. Keep changes minimal and verification practical, muted, and in the background; visual playback checks remain with the user.
+
+# Inherited player constraints
 
 - 2026-10-23: Pending UI Preferences.txt is authorized and implemented. User clarified maximize click shows a small box but does nothing; route HTMAXBUTTON clicks into normal Qt client mouse/QML handling, without independent native capture/direct release toggle. Preserve Snap hover. Top and bottom bars use about70% opaque neutral gray (about30% transparent); other menus retain their existing opacity. Default no-file Home is560x360. User requested replacement deployment, obsolete executable removal and GitHub push. No additional broad benchmarks.
 

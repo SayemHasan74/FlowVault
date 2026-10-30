@@ -1,3 +1,11 @@
+# FlowVault
+
+FlowVault is the separate home for the planned local, Crunchyroll-style media library, starting from FlowPlayer's working player baseline at `3019742` (including the latest transparency changes).
+
+Future FlowVault development belongs in this repository. The original [FlowPlayer repository](https://github.com/SayemHasan74/Player) remains the independent lightweight player. Library features have not been implemented yet; the inherited player documentation below describes the current baseline.
+
+---
+
 <p align="center">
   <img src="assets/flowplayer.png" width="96" alt="FlowPlayer clapperboard icon">
 </p>
