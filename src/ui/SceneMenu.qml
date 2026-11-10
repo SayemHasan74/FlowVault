@@ -2,6 +2,7 @@ import QtQuick
 Item {
     id:menu
     property string inputRole:"menu"
+    property Item backdrop
     property string kind:"context"
     property int selectedIndex:0
     property var entries:[]
@@ -19,7 +20,7 @@ Item {
     Keys.onReturnPressed:{if(entries.length>0)chosen(entries[selectedIndex])}
     Keys.onEnterPressed:{if(entries.length>0)chosen(entries[selectedIndex])}
     MouseArea {anchors.fill:parent;onClicked:menu.dismissed()}
-    Rectangle {
+    Item {
         id:panel
         readonly property real spaceBelow:menu.height-menu.originY-6
         readonly property bool placeAbove:menu.openAbove||spaceBelow<80
@@ -28,8 +29,7 @@ Item {
         // control menus open upward. Clamp either placement inside the scene.
         y:Math.max(6,Math.min(menu.height-height-6,placeAbove?menu.originY-height-6:menu.originY))
         width:Math.min(300,menu.width-12);height:Math.max(0,Math.min(menu.height-12,placeAbove?menu.height-12:spaceBelow,list.contentHeight+12+(menu.kind==="url"?42:0)))
-        radius:7;border.color:UiPalette.border
-        gradient:Gradient {GradientStop{position:0;color:UiPalette.surfaceTop} GradientStop{position:1;color:UiPalette.surfaceBottom}}
+        GlassSurface {anchors.fill:parent;backdrop:menu.backdrop;sceneOrigin:Qt.point(panel.x,panel.y);radius:20;tintAlpha:0.65;gloss:0.20}
         MouseArea {anchors.fill:parent;onClicked:event=>{event.accepted=true}}
         TextInput {
             id:urlInput;property bool textEntry:true
@@ -47,7 +47,7 @@ Item {
                     Rectangle {
                         required property var modelData
                         required property int index
-                        width:rows.width;height:34;radius:4;color:hit.containsMouse||menu.selectedIndex===index?UiPalette.hover:"transparent"
+                        width:rows.width;height:34;radius:12;color:hit.containsMouse||menu.selectedIndex===index?UiPalette.hover:"transparent"
                         Text {anchors {left:parent.left;leftMargin:10;right:parent.right;rightMargin:8;verticalCenter:parent.verticalCenter} text:(parent.modelData.checked?"✓  ":"")+parent.modelData.label;color:UiPalette.text;font.pixelSize:13;elide:Text.ElideRight}
                         MouseArea {id:hit;anchors.fill:parent;hoverEnabled:true;onClicked:menu.chosen(parent.modelData);onDoubleClicked:event=>{event.accepted=true}}
                     }

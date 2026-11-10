@@ -30,6 +30,7 @@ public:
     Q_INVOKABLE void openMany(const QStringList &paths);
     Q_INVOKABLE void playIndex(int index);
     Q_INVOKABLE void reorder(int from,int to);
+    Q_INVOKABLE void shuffleUpcoming();
     Q_INVOKABLE void open(const QString &path,bool fromStart=false);
     Q_INVOKABLE void remove(const QString &key);
     Q_INVOKABLE void openFolder(const QString &path);

@@ -1,14 +1,16 @@
 """One isolated input smoke. Never moves/resizes/minimizes the desktop window."""
 import argparse,hashlib,json,os,pathlib,re,subprocess
 ROOT=pathlib.Path(__file__).resolve().parents[1]
-p=argparse.ArgumentParser();p.add_argument('--name',default='final-pass');a=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('--name',default='final-pass');p.add_argument('--capture-glass',action='store_true');p.add_argument('--media',type=pathlib.Path,default=ROOT/'tests/media/part3-multi.mkv');a=p.parse_args()
 if not re.fullmatch(r'[A-Za-z0-9_-]+',a.name):raise SystemExit('Simple result name required')
 out=ROOT/'tests/results'/a.name
 if out.exists():raise SystemExit('Preserve existing evidence; choose a new --name')
 out.mkdir(parents=True);exe=ROOT/'build/FlowPlayer.exe'
 env=os.environ.copy();env.update(FLOW_TEST_BACKGROUND='1',FLOW_TEST_MUTE='1',FLOW_SCENARIO='final-pass',FLOW_QUIT_MS='10500',FLOW_LOG_DIRECTORY=str(out/'logs'),FLOW_SETTINGS_FILE=str(out/'settings.ini'),FLOW_HISTORY_DB=str(out/'flow.db'),FLOW_THUMBS_DIR=str(out/'thumbs'),PATH=str(ROOT/'deps/Qt/bin')+';'+env['PATH'],QT_PLUGIN_PATH=str(ROOT/'deps/Qt/plugins'),QML_IMPORT_PATH=str(ROOT/'deps/Qt/qml'))
 env.pop('FLOW_INSTANCE_NAME',None)
-process=subprocess.Popen([str(exe),str(ROOT/'tests/media/part3-multi.mkv')],env=env)
+env.pop('FLOW_GLASS_CAPTURE_DIR',None)
+if a.capture_glass:env['FLOW_GLASS_CAPTURE_DIR']=str(out)
+process=subprocess.Popen([str(exe),str(a.media.resolve())],env=env)
 try:process.wait(timeout=25)
 except BaseException:
     if process.poll() is None:process.kill();process.wait()
@@ -33,6 +35,11 @@ if 'CAPTION_ROUTE begin' in log:
     assert captions.split('CAPTION_ROUTE client_release_done',1)[1].count('BACKGROUND_MAXIMIZE_SUPPRESSED')==0,captions
 layout=json.loads(next(line.split('FINAL_LAYOUT ',1)[1] for line in log.splitlines() if 'FINAL_LAYOUT ' in line))
 assert all(r['volumeClear'] and r['actionsClear'] and r['seekWidth']>0 for r in layout['layouts']),layout
+if a.capture_glass:
+    assert re.findall(r'GLASS_MINI (\d)',log)==['1','0'],log
+    assert 'GLASS_CONTEXT 1' in log
+    for name in ['playing','queue','context-menu','mini']:
+        assert f'GLASS_CAPTURE {name}=1' in log and (out/f'{name}.png').is_file(),name
 assert 'WINDOW_ACTIVE=1' not in log
 result={'executableSha256':hashlib.sha256(exe.read_bytes()).hexdigest(),'passed':True,'stages':stages,'layout':layout,'captionRoute':{'nativeRelease':True,'clientRelease':True,'outsideReleaseCanceled':True,'duplicateReleaseIgnored':True} if 'CAPTION_ROUTE begin' in log else None,'cleanExit':True,'neverActivated':True,'nativeDesktopMinimize':'suppressed; production request/pause policy checked','nativeMaximizeRestore':'desktop geometry and Windows Snap flyout remain manual; actual QML click route checked without OS capture','errors':errors}
 (out/'summary.json').write_text(json.dumps(result,indent=2));print(json.dumps(result,indent=2))

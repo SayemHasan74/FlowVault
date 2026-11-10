@@ -2,6 +2,7 @@ import QtQuick
 Item {
     id:settings
     property string inputRole:"settings"
+    property Item backdrop
     signal closed()
     property var fields:[
         {key:"audioLanguage",label:"Audio languages",type:"text"},
@@ -20,8 +21,10 @@ Item {
         {key:"tinyPreview",label:"Mini video preview",type:"bool"},
         {key:"defaultSpeed",label:"Default speed",type:"number"}]
     MouseArea {anchors.fill:parent;onClicked:settings.closed()}
-    Rectangle {
-        anchors.centerIn:parent;width:Math.min(510,parent.width-16);height:Math.min(500,parent.height-16);radius:9;color:UiPalette.surface;border.color:UiPalette.border
+    Item {
+        id:panel
+        anchors.centerIn:parent;width:Math.min(510,parent.width-16);height:Math.min(500,parent.height-16)
+        GlassSurface {anchors.fill:parent;backdrop:settings.backdrop;sceneOrigin:Qt.point(panel.x,panel.y);radius:26;tintAlpha:0.70}
         MouseArea {anchors.fill:parent;onClicked:event=>{event.accepted=true}}
         Text {x:16;y:12;text:"Settings";color:UiPalette.text;font.pixelSize:18}
         ActionButton {anchors.right:parent.right;anchors.rightMargin:8;y:4;label:"×";onActivated:settings.closed()}
@@ -37,7 +40,7 @@ Item {
                         width:column.width;height:38
                         Text {anchors {left:parent.left;verticalCenter:parent.verticalCenter} width:parent.width*.56;text:row.modelData.label;color:UiPalette.text;font.pixelSize:13;elide:Text.ElideRight}
                         Rectangle {
-                            anchors.right:parent.right;anchors.verticalCenter:parent.verticalCenter;width:parent.width*.42;height:32;radius:4;color:UiPalette.surface;border.color:UiPalette.border
+                            anchors.right:parent.right;anchors.verticalCenter:parent.verticalCenter;width:parent.width*.42;height:32;radius:16;color:UiPalette.field;border.color:UiPalette.border
                             TextInput {
                                 property bool textEntry:true
                                 visible:row.modelData.type!=="bool";anchors.fill:parent;anchors.margins:7;color:UiPalette.text;font.pixelSize:13;clip:true;selectByMouse:true

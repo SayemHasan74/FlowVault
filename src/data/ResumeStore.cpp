@@ -12,6 +12,7 @@
 #include <QJsonObject>
 #include <QDir>
 #include <QFileInfo>
+#include <QRandomGenerator>
 ResumeStore::ResumeStore(MpvController *c,AppSettings *s,HistoryDb *db):m_controller(c),m_settings(s),m_db(db),m_thumbnails(db->thumbnailDirectory()) {
     m_home=QCoreApplication::arguments().size()==1;
     c->setResumeStore(this);
@@ -108,5 +109,14 @@ void ResumeStore::refreshPlaylist(){const auto path=m_active.value("path").toStr
 void ResumeStore::openMany(const QStringList &paths){if(paths.isEmpty())return;m_failedPaths.clear();m_customPaths.clear();if(paths.size()>1)for(const auto &path:paths){auto p=path.startsWith("file:")?QUrl(path).toLocalFile():path;if(!p.contains("://"))p=QDir::fromNativeSeparators(p);if(!m_customPaths.contains(p,Qt::CaseInsensitive))m_customPaths.append(p);}m_playlist.clear();m_playlistFolder.clear();open(paths.first());}
 void ResumeStore::playIndex(int index){if(index<0||index>=m_playlist.size()||m_openPending)return;m_failedPaths.clear();open(m_playlist[index].toMap().value("path").toString());}
 void ResumeStore::reorder(int from,int to){if(from<0||to<0||from>=m_playlist.size()||to>=m_playlist.size()||from==to)return;m_playlist.move(from,to);m_customPaths.clear();for(const auto &r:m_playlist)m_customPaths.append(r.toMap().value("path").toString());publishPlaylist();}
+void ResumeStore::shuffleUpcoming() {
+    const int current=currentIndex();
+    if(current<0||m_openPending||m_playlistPending||m_playlist.size()-current<3)return;
+    for(int i=int(m_playlist.size())-1;i>current+1;--i)
+        m_playlist.swapItemsAt(i,current+1+QRandomGenerator::global()->bounded(i-current));
+    m_customPaths.clear();
+    for(const auto &entry:m_playlist)m_customPaths.append(entry.toMap().value("path").toString());
+    publishPlaylist();
+}
 void ResumeStore::navigate(int direction){if(m_openPending||m_playlistPending)return;if(direction<0&&m_loaded&&m_controller->position()>5&&m_settings->values().value("previousRestarts",true).toBool()){m_controller->seekTo(0);return;}const int index=currentIndex()+(direction<0?-1:1);if(currentIndex()<0||index<0||index>=m_playlist.size()){emit m_controller->toast("No adjacent media file");return;}playIndex(index);}
 void ResumeStore::advance(bool failure){if(m_playlistPending){m_waitAdvance=true;return;}int next=currentIndex()+1;while(next<m_playlist.size()&&m_failedPaths.contains(m_playlist[next].toMap().value("path").toString()))++next;if(currentIndex()>=0&&next<m_playlist.size()){open(m_playlist[next].toMap().value("path").toString());return;}if(!failure&&m_settings->values().value("stayOnLastFrame",false).toBool()){m_loaded=true;m_controller->setPause(true);}else showHome();}

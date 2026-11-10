@@ -8,7 +8,7 @@
 #include <cmath>
 AppSettings::AppSettings(QObject *parent):QObject(parent) {
     m_path=qEnvironmentVariable("FLOW_SETTINGS_FILE");
-    if(m_path.isEmpty())m_path=QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/FlowPlayer/settings.ini";
+    if(m_path.isEmpty())m_path=QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/FlowVault/settings.ini";
     m_values={{"audioLanguage","en,eng"},{"subtitleLanguage","en,eng"},{"autoResume",false},
         {"autoplayNext",true},{"lockAspectRatio",true},{"highQuality",false},{"hardwareDecoding",true},
         {"seekStep",5.0},{"exactSeekStep",1.0},{"largeSeekStep",30.0},{"tinyPreview",false},

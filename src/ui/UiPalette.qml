@@ -1,23 +1,21 @@
 pragma Singleton
 import QtQuick
 QtObject {
-    // Neutral iOS-style gray material. Transparency picks up the content
-    // naturally; no blue background tint, blur or shader effect.
-    readonly property color surfaceTop:"#e348484a"
-    readonly property color surfaceBottom:"#e3333335"
-    // More transparent playback bars; darker neutral gray keeps pale text
-    // readable when bright video is visible underneath.
-    readonly property color barTop:"#b3303032"
-    readonly property color barBottom:"#b3202022"
-    readonly property color surface:"#e33b3b3d"
-    readonly property color background:"#29292b"
-    readonly property color border:"#68686b"
-    readonly property color hover:"#636366"
-    readonly property color selection:"#7a636366"
-    readonly property color field:"#6648484a"
-    readonly property color text:"#f2f2f7"
-    readonly property color muted:"#aeaeb2"
-    readonly property color track:"#747477"
-    readonly property color thumb:"#d1d1d6"
-    readonly property color accent:"#0a84ff"
+    // Glass over a flat surface when no video is visible.
+    readonly property color surfaceTop:"#f643526a"
+    readonly property color surfaceBottom:"#fa222e44"
+    readonly property color surface:"#f62b384f"
+    readonly property color background:"#161e2f"
+    readonly property color border:"#58ffffff"
+    readonly property color hover:"#2effffff"
+    readonly property color selection:"#38ffffff"
+    readonly property color field:"#1affffff"
+    readonly property color text:"#ffffff"
+    readonly property color muted:"#dbe8f8"
+    readonly property color track:"#42ffffff"
+    readonly property color thumb:"#dbeeff"
+    readonly property color accent:"#bfe3ff"
+    readonly property color ink:"#16233f"
+    readonly property color playing:"#7ef0b5"
+    readonly property color paused:"#ffd27a"
 }

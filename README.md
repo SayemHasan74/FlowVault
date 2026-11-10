@@ -4,6 +4,8 @@ FlowVault is the separate home for the planned local, Crunchyroll-style media li
 
 Future FlowVault development belongs in this repository. The original [FlowPlayer repository](https://github.com/SayemHasan74/Player) remains the independent lightweight player. Library features have not been implemented yet; the inherited player documentation below describes the current baseline.
 
+**Liquid Glass preview:** run `out\FlowVault\FlowVault.exe` after building and running `scripts\deploy.ps1`. This build uses its own FlowVault settings, history and single-instance channel. See [the preview checks](tests/LIQUID_GLASS.md). The rollback tag is `pre-liquid-glass`.
+
 ---
 
 <p align="center">

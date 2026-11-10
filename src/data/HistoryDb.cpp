@@ -24,8 +24,8 @@ struct Statement {
 };
 }
 HistoryDb::HistoryDb(QString path,QString thumbs,QObject *parent):QObject(parent) {
-    m_path=path.isEmpty()?qEnvironmentVariable("FLOW_HISTORY_DB",qEnvironmentVariable("APPDATA")+"/FlowPlayer/flow.db"):path;
-    m_thumbs=thumbs.isEmpty()?qEnvironmentVariable("FLOW_THUMBS_DIR",qEnvironmentVariable("LOCALAPPDATA")+"/FlowPlayer/thumbs"):thumbs;
+    m_path=path.isEmpty()?qEnvironmentVariable("FLOW_HISTORY_DB",qEnvironmentVariable("APPDATA")+"/FlowVault/flow.db"):path;
+    m_thumbs=thumbs.isEmpty()?qEnvironmentVariable("FLOW_THUMBS_DIR",qEnvironmentVariable("LOCALAPPDATA")+"/FlowVault/thumbs"):thumbs;
     m_worker=std::thread(&HistoryDb::run,this);
     m_identityWorker=std::thread(&HistoryDb::runIdentity,this);
     m_metadataWorker=std::thread(&HistoryDb::runMetadata,this);

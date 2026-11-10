@@ -8,7 +8,7 @@
 #include <QTimer>
 int SingleInstance::start(const QStringList &paths){
     if(qEnvironmentVariableIsSet("FLOW_TEST_BACKGROUND")&&!qEnvironmentVariableIsSet("FLOW_INSTANCE_NAME"))return 0;
-    const QString name=qEnvironmentVariable("FLOW_INSTANCE_NAME","FlowPlayer-v1-"+qEnvironmentVariable("USERNAME"));
+    const QString name=qEnvironmentVariable("FLOW_INSTANCE_NAME","FlowVault-v1-"+qEnvironmentVariable("USERNAME"));
     m_lock=std::make_unique<QLockFile>(QDir::tempPath()+"/"+name+".lock");
     if(!m_lock->tryLock(0)){
         QLocalSocket client;client.connectToServer(name);

@@ -10,6 +10,8 @@
 #include "platform/SleepInhibitor.h"
 #include "platform/Smtc.h"
 #include <QFileInfo>
+#include <QDir>
+#include <QImage>
 #include <QGuiApplication>
 #include <QQmlContext>
 #include <QSurfaceFormat>
@@ -20,6 +22,7 @@
 #include <QJsonArray>
 #include <QFile>
 #include <QFont>
+#include <QFontDatabase>
 #include <QIcon>
 #include <QQuickItem>
 #include <QKeyEvent>
@@ -49,9 +52,10 @@ int main(int argc,char **argv) {
     QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
     QSurfaceFormat surface;surface.setSwapInterval(1);QSurfaceFormat::setDefaultFormat(surface);
     QGuiApplication app(argc,argv);
-    app.setOrganizationName("FlowPlayer");app.setApplicationName("FlowPlayer");
+    app.setOrganizationName("FlowVault");app.setApplicationName("FlowVault");
     app.setWindowIcon(QIcon(":/branding/flowplayer.png"));
-    app.setFont(QFont("Segoe UI",9));
+    const auto inter=QFontDatabase::applicationFontFamilies(QFontDatabase::addApplicationFont(":/fonts/Inter-reference.ttf"));
+    app.setFont(QFont(inter.isEmpty()?QStringLiteral("Segoe UI"):inter.first(),9));
     std::setlocale(LC_NUMERIC,"C");
     CoInitializeEx(nullptr,COINIT_APARTMENTTHREADED);
     QStringList launchPaths;for(const auto &arg:app.arguments().mid(1))launchPaths.append(arg.contains("://")?arg:QFileInfo(arg).absoluteFilePath());
@@ -69,6 +73,8 @@ int main(int argc,char **argv) {
         ResumeStore resume(&controller,&settings,&history);
         {
             FramelessWindow window(&controller);
+            const QString glassCapture=qEnvironmentVariableIsSet("FLOW_TEST_BACKGROUND")?qEnvironmentVariable("FLOW_GLASS_CAPTURE_DIR"):QString();
+            if(!glassCapture.isEmpty())window.resize(1280,800);
             SleepInhibitor sleep(&controller);
             QObject::connect(&window,&QQuickWindow::frameSwapped,&window,[&]{++diagnostics.swaps;},Qt::DirectConnection);
             Log::write("WINDOW_CREATED_MS="+QString::number(diagnostics.clock.elapsed()));
@@ -151,6 +157,28 @@ int main(int argc,char **argv) {
                         QTimer::singleShot(4400,&window,[&,mark]{mark("down_done");QMouseEvent move(QEvent::MouseMove,QPointF(100,100),QPointF(100,100),Qt::NoButton,Qt::NoButton,Qt::NoModifier);QCoreApplication::sendEvent(&window,&move);mark("mouse_moved");});
                         QTimer::singleShot(4700,&window,[&,key,mark]{auto *root=window.contentItem()->findChild<QObject*>("sceneRoot",Qt::FindDirectChildrenOnly);if(root)QMetaObject::invokeMethod(root,"openUrl",Q_ARG(QVariant,QVariant("https://example.invalid/test")));mark("url_focus");key(Qt::Key_Escape);});
                         QTimer::singleShot(5300,&window,[mark]{mark("escape_done");});
+                        if(!glassCapture.isEmpty()&&root) {
+                            auto capture=[&](const QString &name){const auto path=QDir(glassCapture).filePath(name+".png");Log::write("GLASS_CAPTURE "+name+"="+QString::number(window.grabWindow().save(path)));};
+                            QTimer::singleShot(850,&window,[capture]{capture("playing");});
+                            QTimer::singleShot(5600,&window,[root]{root->setProperty("animatePlaylist",false);QMetaObject::invokeMethod(root,"togglePlaylist");});
+                            QTimer::singleShot(6000,&window,[capture]{capture("queue");});
+                            QTimer::singleShot(6200,&window,[root]{QMetaObject::invokeMethod(root,"closePopups");});
+                            QTimer::singleShot(6600,&window,[&]{
+                                const QPointF p(200,200);
+                                QMouseEvent right(QEvent::MouseButtonPress,p,window.mapToGlobal(p),Qt::RightButton,Qt::RightButton,Qt::NoModifier);
+                                QCoreApplication::sendEvent(&window,&right);
+                                Log::write("GLASS_CONTEXT "+QString::number(window.popupOpen()));
+                            });
+                            QTimer::singleShot(6900,&window,[capture]{capture("context-menu");});
+                            auto grave=[&]{
+                                QKeyEvent event(QEvent::KeyPress,Qt::Key_QuoteLeft,Qt::NoModifier,0x29,0,0,QStringLiteral("`"));
+                                QCoreApplication::sendEvent(&window,&event);
+                                Log::write("GLASS_MINI "+QString::number(window.mini()));
+                            };
+                            QTimer::singleShot(7200,&window,[root,grave]{QMetaObject::invokeMethod(root,"closePopups");grave();});
+                            QTimer::singleShot(7600,&window,[capture]{capture("mini");});
+                            QTimer::singleShot(7900,&window,[grave]{grave();});
+                        }
                     });
                 }
                 if(scenario.startsWith("part5")&&scenario!="part5-perf"){
