@@ -2,6 +2,8 @@ import QtQuick
 
 Item {
     id:root
+    property Item glassVideo
+    property real sceneTop:38
     property string inputRole:"playlist"
     property bool opened:false
     property bool animateDrawer:true
@@ -24,7 +26,7 @@ Item {
         height:Math.max(1,root.height-y-(shortPanel?4:Math.min(30,Math.round(root.height*.05))))
         x:root.opened?root.width-width-edge:root.width
         Behavior on x {enabled:root.animateDrawer;NumberAnimation {duration:140}}
-        GlassSurface {anchors.fill:parent;radius:panel.shortPanel?16:32}
+        GlassSurface {anchors.fill:parent;video:root.glassVideo;origin:Qt.point(panel.x,panel.y+root.sceneTop);radius:panel.shortPanel?16:32}
         MouseArea {anchors.fill:parent;onClicked:event=>{event.accepted=true}}
         Text {x:24;y:panel.shortPanel?10:20;text:"Up next";color:UiPalette.text;font.pixelSize:17;font.weight:Font.DemiBold}
         Text {anchors.right:closeButton.left;anchors.rightMargin:8;y:panel.shortPanel?14:24;text:history.playlist.length+" files";color:UiPalette.muted;font.pixelSize:12}

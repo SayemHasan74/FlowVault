@@ -2,9 +2,10 @@ import QtQuick
 
 Item {
     id:bar
+    property Item glassVideo
     property bool hasVideo: false
     height:38
-    GlassSurface {anchors.fill:parent;radius:0}
+    GlassSurface {anchors.fill:parent;video:bar.glassVideo;origin:Qt.point(bar.x,bar.y);radius:0}
     Text {
         id:title
         anchors.left:parent.left;anchors.leftMargin:14

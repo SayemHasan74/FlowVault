@@ -6,6 +6,7 @@ Item {
     property string failure:""
     property bool animatePlaylist:true
     readonly property bool videoBackdrop:videoLoader.item!==null&&!history.homeVisible&&!playerWindow.videoHidden
+    readonly property Item glassVideo:videoBackdrop?videoLoader.item:null
     readonly property bool modalOpen:sceneMenu.visible||settingsLoader.active||playlistLoader.active
     readonly property bool uiHeld:history.homeVisible||modalOpen||titleHover.hovered||controls.hovered
     onUiHeldChanged:playerWindow.setUiHeld(uiHeld)
@@ -75,7 +76,7 @@ Item {
     }
     TitleBar {
         id:title;anchors {left:parent.left;right:parent.right;top:parent.top} z:10
-        hasVideo:!history.homeVisible&&mpv.duration>0
+        hasVideo:!history.homeVisible&&mpv.duration>0;glassVideo:root.glassVideo
         opacity:playerWindow.controlsVisible?1:0;visible:opacity>0
         Behavior on opacity {NumberAnimation {duration:140}}
         HoverHandler {id:titleHover}
@@ -84,17 +85,18 @@ Item {
         id:controls;anchors {horizontalCenter:parent.horizontalCenter;bottom:parent.bottom;bottomMargin:playerWindow.mini?8:Math.min(36,Math.round(root.height*.045))} z:10
         opacity:playerWindow.controlsVisible?1:0;visible:opacity>0&&(!history.homeVisible||playerWindow.mini)
         Behavior on opacity {NumberAnimation {duration:140}}
+        glassVideo:root.glassVideo
         onMenuRequested:(kind,px,py)=>root.openMenu(kind,px,py,true)
         onPlaylistRequested:root.togglePlaylist()
     }
     ActionButton {
         id:pausedPlay
         visible:root.videoBackdrop&&mpv.pause&&mpv.duration>0&&!playerWindow.mini
-        width:Math.min(120,Math.round(root.height*.19));height:width;z:9
+        width:Math.min(84,Math.round(root.height*.133));height:width;z:9
         x:(root.width-width)/2;y:Math.max(title.height+8,root.height*.426-height/2)
         icon:"play";iconSize:Math.round(width*.39);hint:"Resume playback · Space";showHint:false
         onActivated:{mpv.togglePause();appDiagnostics.overlayClick()}
-        GlassSurface {anchors.fill:parent;z:-1;radius:pausedPlay.width/2}
+        GlassSurface {anchors.fill:parent;z:-1;video:root.glassVideo;origin:Qt.point(pausedPlay.x,pausedPlay.y);radius:pausedPlay.width/2}
     }
     Text {
         anchors.centerIn:parent;visible:!playerWindow.mini&&root.failure.length>0
@@ -105,25 +107,25 @@ Item {
         property string inputRole:"info"
         anchors {left:parent.left;top:parent.top;margins:46} z:20
         visible:playerWindow.infoVisible;width:Math.min(root.width-24,info.implicitWidth+24);height:Math.min(root.height-50,info.implicitHeight+20);clip:true
-        GlassSurface {anchors.fill:parent;radius:14}
+        GlassSurface {anchors.fill:parent;video:root.glassVideo;origin:Qt.point(infoPanel.x,infoPanel.y);radius:14}
         Text {
             id:info;x:12;y:10;color:UiPalette.text;font.pixelSize:13
             text:playerWindow.infoVisible?((mpv.videoInfo.width||0)+" × "+(mpv.videoInfo.height||0)+"\n"+(mpv.videoInfo["video-codec"]||"Audio")+" · "+mpv.hwdecCurrent+"\n"+Number(mpv.videoInfo["container-fps"]||0).toFixed(2)+" fps · "+mpv.droppedFrames+" dropped\n"+(Number(mpv.videoInfo["video-bitrate"]||0)/1000000).toFixed(2)+" Mbps · Cache "+(Math.max(0,mpv.cacheBytes)/1048576).toFixed(1)+" MiB"):""
         }
     }
     SceneMenu {
-        id:sceneMenu;anchors.fill:parent
+        id:sceneMenu;anchors.fill:parent;glassVideo:root.glassVideo
         onDismissed:root.closePopups()
         onChosen:entry=>{root.closePopups();if(entry.run)entry.run()}
         onUrlSubmitted:url=>root.submitUrl(url)
     }
     Loader {
         id:playlistLoader;anchors.fill:parent;anchors.topMargin:38;z:30;active:false
-        sourceComponent:Component {PlaylistPanel {animateDrawer:root.animatePlaylist;onClosed:{playlistLoader.active=false;root.forceActiveFocus()}}}
+        sourceComponent:Component {PlaylistPanel {glassVideo:root.glassVideo;sceneTop:playlistLoader.y;animateDrawer:root.animatePlaylist;onClosed:{playlistLoader.active=false;root.forceActiveFocus()}}}
     }
     Loader {
         id:settingsLoader;anchors.fill:parent;z:110;active:false
-        sourceComponent:Component {SettingsPanel {onClosed:root.closePopups()}}
+        sourceComponent:Component {SettingsPanel {glassVideo:root.glassVideo;onClosed:root.closePopups()}}
     }
     Toast {id:toast;anchors {horizontalCenter:parent.horizontalCenter;top:parent.top;topMargin:playerWindow.mini?40:58} z:150}
     Connections {
