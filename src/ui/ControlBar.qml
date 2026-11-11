@@ -4,7 +4,6 @@ Item {
     id: controls
     objectName: "playbackControls"
     property string inputRole: "control"
-    property Item backdrop
     property bool showRemaining: true
     readonly property real uiScale: playerWindow.mini ? 0.63 : Math.min(1,Math.max(0.54,width/900))
     readonly property bool narrow: layout.width < 730
@@ -15,9 +14,9 @@ Item {
 
     function dockWidth() {return Math.min(1040,Math.max(1,parent.width-(playerWindow.mini?24:48)))}
     width: dockWidth()
-    height: (narrow ? 166 : 138)*uiScale
+    height: (narrow ? 138 : 97)*uiScale
     HoverHandler {id:hover}
-    GlassSurface {anchors.fill:parent;backdrop:controls.backdrop;sceneOrigin:Qt.point(controls.x,controls.y);radius:36*controls.uiScale;shadowMargin:48*controls.uiScale}
+    GlassSurface {anchors.fill:parent;radius:28*controls.uiScale}
 
     function menu(kind,item) {let p=item.mapToItem(controls.parent,0,0);menuRequested(kind,p.x,p.y)}
     function stamp(seconds) {seconds=Math.max(0,Math.floor(seconds));let h=Math.floor(seconds/3600),m=Math.floor(seconds/60)%60,s=seconds%60;return (h>0?h+":"+String(m).padStart(2,"0"):String(m))+":"+String(s).padStart(2,"0")}
@@ -40,20 +39,20 @@ Item {
         transformOrigin: Item.TopLeft
         readonly property int inset: controls.compact?20:30
         Text {
-            id:elapsed;x:layout.inset;y:26-height/2
+            id:elapsed;x:layout.inset;y:14-height/2
             width:Math.max(44,timeMetrics.advanceWidth(controls.stamp(mpv.duration)))
             text:controls.stamp(controls.visible?mpv.position:0);color:UiPalette.text;font.pixelSize:13;font.weight:Font.Medium
         }
         Text {
-            id:remaining;y:26-height/2;width:Math.max(52,timeMetrics.advanceWidth("−"+controls.stamp(mpv.duration)))
+            id:remaining;y:14-height/2;width:Math.max(52,timeMetrics.advanceWidth("−"+controls.stamp(mpv.duration)))
             horizontalAlignment:Text.AlignRight;anchors.right:parent.right;anchors.rightMargin:layout.inset
             text:controls.showRemaining?"−"+controls.stamp(controls.visible?mpv.duration-mpv.position:0):controls.stamp(mpv.duration)
             color:UiPalette.text;font.pixelSize:13;font.weight:Font.Medium
             MouseArea {anchors.fill:parent;onClicked:controls.showRemaining=!controls.showRemaining}
         }
-        SeekBar {id:seek;y:12;anchors.left:elapsed.right;anchors.leftMargin:16;anchors.right:remaining.left;anchors.rightMargin:16;height:28}
+        SeekBar {id:seek;y:0;anchors.left:elapsed.right;anchors.leftMargin:16;anchors.right:remaining.left;anchors.rightMargin:16;height:28}
         Row {
-            id:volumeRow;objectName:"volumeGroup";x:layout.inset;y:controls.narrow?116:64;spacing:10
+            id:volumeRow;objectName:"volumeGroup";x:layout.inset;y:controls.narrow?96:41;spacing:10
             ActionButton {icon:mpv.mute?"mute":"volume";iconSize:22;hint:"Mute · M";onActivated:mpv.toggleMute()}
             Item {
                 property string inputRole:"volume";width:controls.narrow?64:104;height:40
@@ -64,7 +63,7 @@ Item {
             }
         }
         Row {
-            id:transport;objectName:"transportGroup";anchors.horizontalCenter:parent.horizontalCenter;y:50;spacing:controls.compact?8:14
+            id:transport;objectName:"transportGroup";anchors.horizontalCenter:parent.horizontalCenter;y:28;spacing:controls.compact?8:14
             ActionButton {objectName:"previousButton";icon:"previous";width:controls.compact?34:44;height:68;iconSize:22;hint:"Previous file";onActivated:history.navigate(-1)}
             ActionButton {icon:"back10";width:controls.compact?38:48;height:68;iconSize:28;hint:"Back 10 seconds";onActivated:mpv.seek(-10)}
             ActionButton {objectName:"playPauseButton";orb:true;icon:mpv.pause?"play":"pause";width:68;height:68;iconSize:mpv.pause?30:28;hint:"Play / Pause · Space";onActivated:{mpv.togglePause();appDiagnostics.overlayClick()}}
@@ -72,7 +71,7 @@ Item {
             ActionButton {objectName:"nextButton";icon:"next";width:controls.compact?34:44;height:68;iconSize:22;hint:"Next file";onActivated:history.navigate(1)}
         }
         Row {
-            id:actions;objectName:"actionGroup";anchors.right:parent.right;anchors.rightMargin:layout.inset;y:controls.narrow?116:64;spacing:controls.compact?2:4
+            id:actions;objectName:"actionGroup";anchors.right:parent.right;anchors.rightMargin:layout.inset;y:controls.narrow?96:41;spacing:controls.compact?2:4
             readonly property int buttonWidth: controls.compact?30:40
             ActionButton {icon:"subtitles";width:actions.buttonWidth;hint:"Subtitles · S";onActivated:controls.menu("sub",this)}
             ActionButton {icon:"audio";width:actions.buttonWidth;hint:"Audio tracks · A";onActivated:controls.menu("audio",this)}

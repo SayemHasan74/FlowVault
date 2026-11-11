@@ -80,8 +80,7 @@ protected:
 private:
     MpvController *m_controller;
     bool m_lockAspect=true,m_maxHovered=false,m_resumeAfterMinimize=false;
-    bool m_minimizePending=false,m_minimizePrepared=false,m_wasMinimized=false;
-    int m_minimizeSwaps=0;
+    bool m_minimizePrepared=false,m_wasMinimized=false;
     bool m_closeRequested=false,m_closeReady=false;
     bool m_precisePlaybackTiming=false;
     void updatePlaybackTiming();

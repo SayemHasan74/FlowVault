@@ -2,20 +2,12 @@ import QtQuick
 
 Item {
     id:bar
-    property Item backdrop
     property bool hasVideo: false
     height:38
-    GlassSurface {anchors.fill:parent;backdrop:bar.backdrop;sceneOrigin:Qt.point(bar.x,bar.y);radius:0;tintAlpha:0.34;gloss:0.22;shadowMargin:0}
-    Rectangle {
-        id:statusGlow
-        visible:bar.hasVideo
-        x:14;anchors.verticalCenter:parent.verticalCenter;width:14;height:14;radius:7
-        color:mpv.pause?"#38ffd27a":"#387ef0b5"
-        Rectangle {anchors.centerIn:parent;width:8;height:8;radius:4;color:mpv.pause?UiPalette.paused:UiPalette.playing}
-    }
+    GlassSurface {anchors.fill:parent;radius:0}
     Text {
         id:title
-        anchors.left:parent.left;anchors.leftMargin:bar.hasVideo?36:14
+        anchors.left:parent.left;anchors.leftMargin:14
         anchors.verticalCenter:parent.verticalCenter
         width:Math.max(0,Math.min(implicitWidth,buttons.x-x-14-(pauseLabel.visible?pauseLabel.implicitWidth+12:0)))
         text:mpv.title;color:UiPalette.text;font.pixelSize:14;font.weight:Font.Medium;elide:Text.ElideRight

@@ -69,14 +69,9 @@ FramelessWindow::FramelessWindow(MpvController *c):m_controller(c) {
     connect(c,&MpvController::stateChanged,this,[this]{
         updatePlaybackTiming();
         if(m_cursorPaused!=m_controller->pause()) {m_cursorPaused=m_controller->pause();m_controllerPaused=m_cursorPaused;pointerActivity();}
-        if(m_minimizePending&&m_controller->pause()&&m_minimizeSwaps==0) {m_minimizeSwaps=2;emit m_controller->renderUpdateRequested();update();}
     });
     connect(this,&QWindow::visibilityChanged,this,[this]{updatePlaybackTiming();});
     connect(this,&QQuickWindow::frameSwapped,this,[this]{
-        if(m_minimizePending&&m_minimizeSwaps>0) {
-            if(--m_minimizeSwaps==0)commitMinimize();
-            else update();
-        }
         if(m_wasMinimized&&visibility()!=QWindow::Minimized&&isExposed()) {
             m_wasMinimized=false;
             // A render callback received while hidden remains pending in mpv.
@@ -372,19 +367,19 @@ bool FramelessWindow::eventFilter(QObject *watched,QEvent *e) {
 void FramelessWindow::requestMinimize(){minimize(false);}
 void FramelessWindow::pauseAndMinimize(){minimize(true);}
 void FramelessWindow::commitMinimize(){
-    m_minimizePending=false;m_minimizeSwaps=0;
     // Background validation records the request without changing the desktop.
     if(qEnvironmentVariableIsSet("FLOW_TEST_BACKGROUND")){Log::write(QString("BACKGROUND_MINIMIZE_SUPPRESSED resumeOnRestore=%1").arg(m_resumeAfterMinimize));return;}
     m_minimizePrepared=true;setWindowStates(windowStates()|Qt::WindowMinimized);setVisible(true);
 }
 void FramelessWindow::minimize(bool stayPaused) {
-    if(stayPaused){m_resumeAfterMinimize=false;m_controller->setPause(true);}
-    if(visibility()==QWindow::Minimized||m_minimizePending)return;
-    if(!stayPaused)m_resumeAfterMinimize=!m_controller->pause();
-    if(!m_controller->ready()||m_controller->idleActive()||!isExposed()){commitMinimize();return;}
-    m_minimizePending=true;
-    if(m_controller->pause()) {m_minimizeSwaps=2;emit m_controller->renderUpdateRequested();update();}
-    else m_controller->setPause(true);
+    if(visibility()==QWindow::Minimized) {
+        if(stayPaused) {m_resumeAfterMinimize=false;m_controller->setPause(true);}
+        return;
+    }
+    m_resumeAfterMinimize=!stayPaused&&!m_controller->pause();
+    if(!m_controller->pause()||stayPaused)m_controller->setPause(true);
+    // The native window transition does not depend on an mpv event or a swap.
+    commitMinimize();
 }
 void FramelessWindow::fitVideo(int w,int h) {
     if(w<=0||h<=0)return;

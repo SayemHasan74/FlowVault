@@ -2,7 +2,6 @@ import QtQuick
 Item {
     id:settings
     property string inputRole:"settings"
-    property Item backdrop
     signal closed()
     property var fields:[
         {key:"audioLanguage",label:"Audio languages",type:"text"},
@@ -24,7 +23,7 @@ Item {
     Item {
         id:panel
         anchors.centerIn:parent;width:Math.min(510,parent.width-16);height:Math.min(500,parent.height-16)
-        GlassSurface {anchors.fill:parent;backdrop:settings.backdrop;sceneOrigin:Qt.point(panel.x,panel.y);radius:26;tintAlpha:0.70}
+        GlassSurface {anchors.fill:parent;radius:26}
         MouseArea {anchors.fill:parent;onClicked:event=>{event.accepted=true}}
         Text {x:16;y:12;text:"Settings";color:UiPalette.text;font.pixelSize:18}
         ActionButton {anchors.right:parent.right;anchors.rightMargin:8;y:4;label:"×";onActivated:settings.closed()}

@@ -26,7 +26,7 @@ assert stages['up_done']['volume']==105 and stages['down_done']['volume']==100,s
 assert stages['mouse_moved']['visible'],stages
 assert stages['url_focus']['popup'] and stages['url_focus']['textFocus'],stages
 assert stages['escape_done']['pause'] and not stages['escape_done']['popup'],stages
-assert 'BACKGROUND_MINIMIZE_SUPPRESSED resumeOnRestore=0' in log
+assert 'BACKGROUND_MINIMIZE_SUPPRESSED resumeOnRestore=0' in log.split('"phase":"url_focus"',1)[1].split('"phase":"escape_returned"',1)[0]
 assert 'FINAL_MAX_HIT center=1 outside=0' in log
 if 'CAPTION_ROUTE begin' in log:
     captions=log.split('CAPTION_ROUTE begin',1)[1].split('CAPTION_ROUTE outside_release_done',1)[0]

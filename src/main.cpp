@@ -155,7 +155,7 @@ int main(int argc,char **argv) {
                         QTimer::singleShot(3800,&window,[key,mark]{mark("left_done");key(Qt::Key_Up);});
                         QTimer::singleShot(4100,&window,[key,mark]{mark("up_done");key(Qt::Key_Down);});
                         QTimer::singleShot(4400,&window,[&,mark]{mark("down_done");QMouseEvent move(QEvent::MouseMove,QPointF(100,100),QPointF(100,100),Qt::NoButton,Qt::NoButton,Qt::NoModifier);QCoreApplication::sendEvent(&window,&move);mark("mouse_moved");});
-                        QTimer::singleShot(4700,&window,[&,key,mark]{auto *root=window.contentItem()->findChild<QObject*>("sceneRoot",Qt::FindDirectChildrenOnly);if(root)QMetaObject::invokeMethod(root,"openUrl",Q_ARG(QVariant,QVariant("https://example.invalid/test")));mark("url_focus");key(Qt::Key_Escape);});
+                        QTimer::singleShot(4700,&window,[&,key,mark]{auto *root=window.contentItem()->findChild<QObject*>("sceneRoot",Qt::FindDirectChildrenOnly);if(root)QMetaObject::invokeMethod(root,"openUrl",Q_ARG(QVariant,QVariant("https://example.invalid/test")));mark("url_focus");key(Qt::Key_Escape);mark("escape_returned");});
                         QTimer::singleShot(5300,&window,[mark]{mark("escape_done");});
                         if(!glassCapture.isEmpty()&&root) {
                             auto capture=[&](const QString &name){const auto path=QDir(glassCapture).filePath(name+".png");Log::write("GLASS_CAPTURE "+name+"="+QString::number(window.grabWindow().save(path)));};

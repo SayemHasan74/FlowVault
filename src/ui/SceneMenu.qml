@@ -2,7 +2,6 @@ import QtQuick
 Item {
     id:menu
     property string inputRole:"menu"
-    property Item backdrop
     property string kind:"context"
     property int selectedIndex:0
     property var entries:[]
@@ -29,7 +28,7 @@ Item {
         // control menus open upward. Clamp either placement inside the scene.
         y:Math.max(6,Math.min(menu.height-height-6,placeAbove?menu.originY-height-6:menu.originY))
         width:Math.min(300,menu.width-12);height:Math.max(0,Math.min(menu.height-12,placeAbove?menu.height-12:spaceBelow,list.contentHeight+12+(menu.kind==="url"?42:0)))
-        GlassSurface {anchors.fill:parent;backdrop:menu.backdrop;sceneOrigin:Qt.point(panel.x,panel.y);radius:20;tintAlpha:0.65;gloss:0.20}
+        GlassSurface {anchors.fill:parent;radius:20}
         MouseArea {anchors.fill:parent;onClicked:event=>{event.accepted=true}}
         TextInput {
             id:urlInput;property bool textEntry:true
