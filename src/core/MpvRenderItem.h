@@ -16,6 +16,8 @@ public:
 signals:
     void controllerChanged();
     void firstFrame();
+protected:
+    QSGNode *updatePaintNode(QSGNode *node, UpdatePaintNodeData *data) override;
 private:
     MpvController *m_controller=nullptr;
 };

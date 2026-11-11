@@ -8,6 +8,7 @@ layout(std140,binding=0) uniform Block {
     vec2 videoSize;
     vec2 sceneOrigin;
     float rounding;
+    float deviceScale;
 } ubuf;
 layout(binding=1) uniform sampler2D videoTexture;
 
@@ -21,13 +22,15 @@ void main() {
     // Refract only near the edge. Read the existing mpv texture in this draw.
     vec2 lens=normalize(local+vec2(0.001))*rim*5.0;
     vec2 uv=(ubuf.sceneOrigin+p-lens)/ubuf.videoSize;
-    // Paired bilinear taps approximate the 2.85 px CSS blur in this draw.
-    const float offsets[5]=float[5](-4.415257,-1.891511,0.0,1.891511,4.415257);
-    const float weights[5]=float[5](0.149537,0.271603,0.157721,0.271603,0.149537);
+    // Contiguous 11-pixel kernel. Each bilinear tap combines two adjacent
+    // texels; split the center weight across the two innermost taps.
+    const float offsets[6]=float[6](-4.44187624, -2.46760781, -0.66087526, 0.66087526, 2.46760781, 4.44187624);
+    const float weights[6]=float[6](0.13595321, 0.19459340, 0.16945338, 0.16945338, 0.19459340, 0.13595321);
+    vec2 texel=1.0/(ubuf.videoSize*ubuf.deviceScale);
     vec3 video=vec3(0.0);
-    for (int y=0;y<5;++y)
-        for (int x=0;x<5;++x)
-            video+=texture(videoTexture,uv+vec2(offsets[x],offsets[y])/ubuf.videoSize).rgb*weights[x]*weights[y];
+    for (int y=0;y<6;++y)
+        for (int x=0;x<6;++x)
+            video+=texture(videoTexture,uv+vec2(offsets[x],offsets[y])*texel).rgb*weights[x]*weights[y];
     float light=dot(video,vec3(0.2126,0.7152,0.0722));
     vec3 vivid=clamp(mix(vec3(light),video,1.65),0.0,1.0);
     vec3 color=mix(vivid,vec3(12,26,48)/255.0,0.22);

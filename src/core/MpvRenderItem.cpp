@@ -4,6 +4,8 @@
 #include <QtOpenGL/QOpenGLFramebufferObject>
 #include <QQuickOpenGLUtils>
 #include <QQuickWindow>
+#include <QSGTextureProvider>
+#include <QSGTexture>
 #include <mpv/render_gl.h>
 #include <chrono>
 
@@ -109,4 +111,19 @@ void MpvRenderItem::setController(MpvController *c) {
     emit controllerChanged();update();
 }
 QQuickFramebufferObject::Renderer *MpvRenderItem::createRenderer() const {return new MpvRenderer(const_cast<MpvRenderItem*>(this));}
+QSGNode *MpvRenderItem::updatePaintNode(QSGNode *node, UpdatePaintNodeData *data) {
+    auto *result=QQuickFramebufferObject::updatePaintNode(node,data);
+    if(!result)return nullptr;
+    // Qt sets the video node's material filtering, but ShaderEffect also
+    // reads the shared texture's own filtering. Set it after FBO creation.
+    auto *provider=QQuickFramebufferObject::textureProvider();
+    auto *texture=provider?provider->texture():nullptr;
+    if(texture&&texture->filtering()!=QSGTexture::Linear) {
+        const bool capture=qEnvironmentVariableIsSet("FLOW_GLASS_CAPTURE_DIR");
+        const auto previous=texture->filtering();
+        texture->setFiltering(QSGTexture::Linear);
+        if(capture)Log::write(QString("GLASS_TEXTURE_FILTER previous=%1 current=linear").arg(previous==QSGTexture::Nearest?"nearest":"other"));
+    }
+    return result;
+}
 void MpvRenderItem::scheduleFrame() {if(window()&&window()->isVisible()&&window()->visibility()!=QWindow::Minimized)update();}

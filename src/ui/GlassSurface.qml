@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Window
 
 Item {
     id:glass
@@ -25,6 +26,7 @@ Item {
         property size videoSize:glass.video?Qt.size(Math.max(1,glass.video.width),Math.max(1,glass.video.height)):Qt.size(1,1)
         property size panelSize:Qt.size(width,height)
         property real rounding:Math.min(glass.radius,width/2,height/2)
+        property real deviceScale:Screen.devicePixelRatio
         fragmentShader:"qrc:/glass/glass.frag.qsb"
     }
 }

@@ -36,6 +36,7 @@ if 'CAPTION_ROUTE begin' in log:
 layout=json.loads(next(line.split('FINAL_LAYOUT ',1)[1] for line in log.splitlines() if 'FINAL_LAYOUT ' in line))
 assert all(r['volumeClear'] and r['actionsClear'] and r['seekWidth']>0 for r in layout['layouts']),layout
 if a.capture_glass:
+    assert 'GLASS_TEXTURE_FILTER previous=nearest current=linear' in log
     assert re.findall(r'GLASS_MINI (\d)',log)==['1','0'],log
     assert 'GLASS_CONTEXT 1' in log
     for name in ['playing','queue','context-menu','mini']:
