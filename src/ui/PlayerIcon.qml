@@ -1,51 +1,59 @@
 import QtQuick
-import QtQuick.Window
-Canvas {
+import QtQuick.Shapes
+
+Item {
     id:icon
     property string name:"play"
     property color tint:UiPalette.text
     width:24;height:24
-    canvasSize:Qt.size(Math.ceil(width*Screen.devicePixelRatio),Math.ceil(height*Screen.devicePixelRatio))
-    onNameChanged:requestPaint()
-    onTintChanged:requestPaint()
-    onCanvasSizeChanged:requestPaint()
-    // Static cached texture. Repaint only when the icon or its size changes.
-    onPaint:{
-        let c=getContext("2d");c.reset();c.clearRect(0,0,canvasSize.width,canvasSize.height);c.scale(canvasSize.width/24,canvasSize.height/24)
-        c.fillStyle=tint;c.strokeStyle=tint;c.lineWidth=1.7;c.lineCap="round";c.lineJoin="round"
-        function line(points){c.beginPath();c.moveTo(points[0],points[1]);for(let i=2;i<points.length;i+=2)c.lineTo(points[i],points[i+1]);c.stroke()}
-        function polygon(points){c.beginPath();c.moveTo(points[0],points[1]);for(let i=2;i<points.length;i+=2)c.lineTo(points[i],points[i+1]);c.closePath();c.fill()}
-        function box(x,y,w,h){c.strokeRect(x,y,w,h)}
-        switch(name){
-        case "play":
-            c.beginPath();c.moveTo(7,5);c.quadraticCurveTo(7,3.4,8.5,4.3);c.lineTo(20.5,11.2);c.quadraticCurveTo(22,12,20.5,12.8);c.lineTo(8.5,19.7);c.quadraticCurveTo(7,20.6,7,19);c.closePath();c.fill();break
-        case "pause":
-            c.beginPath();c.roundedRect(6,5,4.5,14,1.4,1.4);c.roundedRect(13.5,5,4.5,14,1.4,1.4);c.fill();break
-        case "previous":c.fillRect(6,5,2,14);polygon([20,5,9.5,12,20,19]);break
-        case "next":c.fillRect(16,5,2,14);polygon([4,5,14.5,12,4,19]);break
-        case "back10":case "forward10":
-            c.save();if(name==="back10"){c.translate(24,0);c.scale(-1,1)}
-            c.beginPath();c.arc(12,12,8,0,Math.PI*1.5);c.stroke()
-            line([12,4,16.5,4]);line([13.5,1,16.5,4,13.5,7]);c.restore()
-            c.font="600 7.5px Inter";c.textAlign="center";c.fillText("10",12,15.5);break
-        case "volume":case "mute":
-            line([4,9.5,4,14.5,7.5,14.5,12,18.5,12,5.5,7.5,9.5,4,9.5]);
-            if(name==="mute"){line([16,8,22,16]);line([22,8,16,16])}
-            else {c.beginPath();c.arc(11,12,6,-.8,.8);c.stroke();c.beginPath();c.arc(11,12,10,-.8,.8);c.stroke()}
-            break
-        case "audio":box(3,4,17,13);line([7,8,7,13,10,12,10,7,16,6,16,11]);c.beginPath();c.arc(8,13,1.5,0,Math.PI*2);c.fill();c.beginPath();c.arc(14,12,1.5,0,Math.PI*2);c.fill();line([9,20,15,20]);break
-        case "subtitles":c.beginPath();c.roundedRect(3,5,18,14,3.5,3.5);c.stroke();line([7,11,11,11]);line([13,11,17,11]);line([7,15,9.5,15]);line([12,15,17,15]);break
-        case "playlist":box(3,3,17,15);line([6,7,17,7]);line([6,11,14,11]);line([6,15,11,15]);polygon([15,13,23,18,15,23]);break
-        case "more":for(let x of [5.5,12,18.5]){c.beginPath();c.arc(x,12,1.7,0,Math.PI*2);c.fill()}break
-        case "fullscreen":line([3,9,3,3,9,3]);line([15,3,21,3,21,9]);line([21,15,21,21,15,21]);line([9,21,3,21,3,15]);break
-        case "exitFullscreen":line([3,9,9,9,9,3]);line([15,3,15,9,21,9]);line([21,15,15,15,15,21]);line([9,21,9,15,3,15]);break
-        case "mini":c.beginPath();c.roundedRect(3,5,18,14,3,3);c.roundedRect(11,12,7,4,1.2,1.2);c.stroke();break
-        case "restore":box(3,8,13,13);line([8,8,8,3,21,3,21,16,16,16]);break
-        case "pin":line([8,3,16,3,15,10,19,15,5,15,9,10,8,3]);line([12,15,12,22]);break
-        case "minimize":line([5,12,19,12]);break
-        case "maximize":c.beginPath();c.roundedRect(5,5,14,14,2.5,2.5);c.stroke();break
-        case "close":line([5,5,19,19]);line([19,5,5,19]);break
-        case "file":line([6,2,14,2,19,7,19,22,6,22,6,2]);line([14,2,14,7,19,7]);break
+
+    // SVG geometry from the reference; extra player actions use the same stroke.
+    readonly property var glyph: {
+        switch(name) {
+        case "pin": return ["M12 17v5 M9 3h6l-1 6 3 3v2H7v-2l3-3z", 1.8]
+        case "mini": return ["M6.0 5.0H18.0Q21.0 5.0 21.0 8.0V16.0Q21.0 19.0 18.0 19.0H6.0Q3.0 19.0 3.0 16.0V8.0Q3.0 5.0 6.0 5.0Z M12.2 12.0H16.8Q18.0 12.0 18.0 13.2V14.8Q18.0 16.0 16.8 16.0H12.2Q11.0 16.0 11.0 14.8V13.2Q11.0 12.0 12.2 12.0Z", 1.8]
+        case "minimize": return ["M5 12h14", 1.8]
+        case "maximize": return ["M7.5 5.0H16.5Q19.0 5.0 19.0 7.5V16.5Q19.0 19.0 16.5 19.0H7.5Q5.0 19.0 5.0 16.5V7.5Q5.0 5.0 7.5 5.0Z", 1.8]
+        case "close": return ["M6 6l12 12M18 6L6 18", 1.8]
+        case "volume": return ["M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z M15.5 9a4 4 0 0 1 0 6 M18 6.5a7.5 7.5 0 0 1 0 11", 1.8]
+        case "previous": return ["M6 5h2v14H6zM20 5v14L9.5 12z", 0]
+        case "back10": return ["M4 12a8 8 0 1 0 8-8H8 M10.5 1.5L7.5 4.5l3 3", 1.7]
+        case "forward10": return ["M20 12a8 8 0 1 1 -8-8h4 M13.5 1.5l3 3-3 3", 1.7]
+        case "next": return ["M16 5h2v14h-2zM4 5v14l10.5-7z", 0]
+        case "subtitles": return ["M6.5 5.0H17.5Q21.0 5.0 21.0 8.5V15.5Q21.0 19.0 17.5 19.0H6.5Q3.0 19.0 3.0 15.5V8.5Q3.0 5.0 6.5 5.0Z M7 11h4M13 11h4M7 15h2.5M12 15h5", 1.7]
+        case "fullscreen": return ["M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1 -1 1h-4M9 20H5a1 1 0 0 1 -1-1v-4", 1.7]
+        case "more": return ["M3.8 12.0a1.7 1.7 0 1 0 3.4 0a1.7 1.7 0 1 0 -3.4 0Z M10.3 12.0a1.7 1.7 0 1 0 3.4 0a1.7 1.7 0 1 0 -3.4 0Z M16.8 12.0a1.7 1.7 0 1 0 3.4 0a1.7 1.7 0 1 0 -3.4 0Z", 0]
+        case "pause": return ["M7.4 5.0H9.1Q10.5 5.0 10.5 6.4V17.6Q10.5 19.0 9.1 19.0H7.4Q6.0 19.0 6.0 17.6V6.4Q6.0 5.0 7.4 5.0Z M14.9 5.0H16.6Q18.0 5.0 18.0 6.4V17.6Q18.0 19.0 16.6 19.0H14.9Q13.5 19.0 13.5 17.6V6.4Q13.5 5.0 14.9 5.0Z", 0]
+        case "play": return ["M7 4.8v14.4a1 1 0 0 0 1.5 .86l12-7.2a1 1 0 0 0 0-1.72l-12-7.2A1 1 0 0 0 7 4.8z", 0]
+        case "mute": return ["M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z M16 9l6 6m0-6-6 6", 1.8]
+        case "exitFullscreen": return ["M3 9h6V3m6 0v6h6m0 6h-6v6m-6 0v-6H3", 1.7]
+        case "restore": return ["M3 8h13v13H3z M8 8V3h13v13h-5", 1.7]
+        case "audio": return ["M4 5h16v14H4z M10 15V9l6-1v5m-6 2a1.5 1 0 1 1-3 0 1.5 1 0 1 1 3 0m6-2a1.5 1 0 1 1-3 0 1.5 1 0 1 1 3 0", 1.7]
+        case "playlist": return ["M4 6h16M4 11h16M4 16h9m3-2 4 3-4 3z", 1.7]
+        case "file": return ["M6 2h8l5 5v15H6z M14 2v5h5", 1.7]
+        default: return ["",0]
+        }
+    }
+    Item {
+        anchors.centerIn:parent;width:24;height:24
+        scale:Math.min(icon.width,icon.height)/24
+        Shape {
+            anchors.fill:parent
+            preferredRendererType:Shape.CurveRenderer
+            ShapePath {
+                fillColor:icon.glyph[1]===0?icon.tint:"transparent"
+                strokeColor:icon.glyph[1]===0?"transparent":icon.tint
+                strokeWidth:icon.glyph[1]
+                capStyle:ShapePath.RoundCap
+                joinStyle:ShapePath.RoundJoin
+                PathSvg {path:icon.glyph[0]}
+            }
+        }
+        Text {
+            anchors.horizontalCenter:parent.horizontalCenter
+            y:15.5-baselineOffset
+            visible:icon.name==="back10"||icon.name==="forward10"
+            text:visible?"10":"";color:icon.tint;font.pixelSize:8;font.weight:Font.DemiBold
         }
     }
 }

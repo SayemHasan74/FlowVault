@@ -21,15 +21,22 @@ void main() {
     // Refract only near the edge. Read the existing mpv texture in this draw.
     vec2 lens=normalize(local+vec2(0.001))*rim*5.0;
     vec2 uv=(ubuf.sceneOrigin+p-lens)/ubuf.videoSize;
-    // A single sample avoids repeated outlines from text behind the panel.
-    vec3 video=texture(videoTexture,uv).rgb;
+    // Paired bilinear taps approximate the 2.85 px CSS blur in this draw.
+    const float offsets[5]=float[5](-4.415257,-1.891511,0.0,1.891511,4.415257);
+    const float weights[5]=float[5](0.149537,0.271603,0.157721,0.271603,0.149537);
+    vec3 video=vec3(0.0);
+    for (int y=0;y<5;++y)
+        for (int x=0;x<5;++x)
+            video+=texture(videoTexture,uv+vec2(offsets[x],offsets[y])/ubuf.videoSize).rgb*weights[x]*weights[y];
     float light=dot(video,vec3(0.2126,0.7152,0.0722));
-    // Match the reference's 190% saturation and 36% blue-black tint.
-    vec3 vivid=clamp(mix(vec3(light),video,1.90),0.0,1.0);
-    float tint=0.36+0.27*smoothstep(0.62,0.95,light);
-    vec3 color=mix(vivid,vec3(18.0,26.0,44.0)/255.0,tint);
-    float gloss=0.26*max(0.0,1.0-qt_TexCoord0.y/0.48);
-    float edge=smoothstep(-1.6,-0.5,d)*(0.31+0.20*(1.0-qt_TexCoord0.y));
-    color=mix(color,vec3(1.0),gloss+edge);
+    vec3 vivid=clamp(mix(vec3(light),video,1.65),0.0,1.0);
+    vec3 color=mix(vivid,vec3(12,26,48)/255.0,0.22);
+    float v=qt_TexCoord0.y;
+    vec4 sheen=v<0.22?mix(vec4(240,250,255,58.65),vec4(179,220,255,20.4),v/0.22):
+               v<0.55?mix(vec4(179,220,255,20.4),vec4(179,220,255,0), (v-0.22)/0.33):
+                      mix(vec4(104,172,242,0),vec4(104,172,242,17.85),(v-0.55)/0.45);
+    color=mix(color,sheen.rgb/255.0,sheen.a/255.0);
+    float edge=smoothstep(-1.5,-0.45,d)*mix(0.70,0.32,v);
+    color=mix(color,vec3(222,243,255)/255.0,edge);
     fragColor=vec4(color,1.0)*coverage*ubuf.qt_Opacity;
 }

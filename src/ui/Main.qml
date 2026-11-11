@@ -127,7 +127,7 @@ Item {
         id:settingsLoader;anchors.fill:parent;z:110;active:false
         sourceComponent:Component {SettingsPanel {glassVideo:root.glassVideo;onClosed:root.closePopups()}}
     }
-    Toast {id:toast;anchors {horizontalCenter:parent.horizontalCenter;top:parent.top;topMargin:playerWindow.mini?40:58} z:150}
+    Toast {id:toast;glassVideo:root.glassVideo;anchors {horizontalCenter:parent.horizontalCenter;top:parent.top;topMargin:playerWindow.mini?40:58} z:150}
     Connections {
         target:mpv
         function onFileLoaded(path) {root.failure=""}
