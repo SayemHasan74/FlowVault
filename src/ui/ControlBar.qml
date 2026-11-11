@@ -54,7 +54,7 @@ Item {
         SeekBar {id:seek;y:5;anchors.left:elapsed.right;anchors.leftMargin:16;anchors.right:remaining.left;anchors.rightMargin:16;height:28}
         Row {
             id:volumeRow;objectName:"volumeGroup";x:layout.inset;y:controls.narrow?96:41;spacing:10
-            ActionButton {icon:mpv.mute?"mute":"volume";iconSize:18;hint:"Mute · M";onActivated:mpv.toggleMute()}
+            ActionButton {icon:mpv.mute?"mute":"volume";iconSize:20;hint:"Mute · M";onActivated:mpv.toggleMute()}
             Item {
                 property string inputRole:"volume";width:controls.narrow?64:104;height:40
                 Rectangle {anchors.verticalCenter:parent.verticalCenter;width:parent.width;height:5;radius:2.5;color:UiPalette.track}
@@ -65,21 +65,21 @@ Item {
         }
         Row {
             id:transport;objectName:"transportGroup";anchors.horizontalCenter:parent.horizontalCenter;y:34;spacing:controls.compact?8:14
-            ActionButton {objectName:"previousButton";icon:"previous";width:controls.compact?34:44;height:60;iconSize:18;hint:"Previous file";onActivated:history.navigate(-1)}
-            ActionButton {icon:"back10";width:controls.compact?38:48;height:60;iconSize:22;hint:"Back 10 seconds";onActivated:mpv.seek(-10)}
+            ActionButton {objectName:"previousButton";icon:"previous";width:controls.compact?34:44;height:60;iconSize:20;hint:"Previous file";onActivated:history.navigate(-1)}
+            ActionButton {icon:"back10";width:controls.compact?38:48;height:60;iconSize:24;hint:"Back 10 seconds";onActivated:mpv.seek(-10)}
             ActionButton {objectName:"playPauseButton";orb:true;icon:mpv.pause?"play":"pause";width:48;height:48;y:6;iconSize:mpv.pause?24:22;hint:"Play / Pause · Space";onActivated:{mpv.togglePause();appDiagnostics.overlayClick()}}
-            ActionButton {icon:"forward10";width:controls.compact?38:48;height:60;iconSize:22;hint:"Forward 10 seconds";onActivated:mpv.seek(10)}
-            ActionButton {objectName:"nextButton";icon:"next";width:controls.compact?34:44;height:60;iconSize:18;hint:"Next file";onActivated:history.navigate(1)}
+            ActionButton {icon:"forward10";width:controls.compact?38:48;height:60;iconSize:24;hint:"Forward 10 seconds";onActivated:mpv.seek(10)}
+            ActionButton {objectName:"nextButton";icon:"next";width:controls.compact?34:44;height:60;iconSize:20;hint:"Next file";onActivated:history.navigate(1)}
         }
         Row {
             id:actions;objectName:"actionGroup";anchors.right:parent.right;anchors.rightMargin:layout.inset;y:controls.narrow?96:41;spacing:controls.compact?2:4
             readonly property int buttonWidth: controls.compact?30:40
-            ActionButton {icon:"subtitles";width:actions.buttonWidth;iconSize:18;hint:"Subtitles · S";onActivated:controls.menu("sub",this)}
-            ActionButton {icon:"audio";width:actions.buttonWidth;iconSize:18;hint:"Audio tracks · A";onActivated:controls.menu("audio",this)}
+            ActionButton {icon:"subtitles";width:actions.buttonWidth;iconSize:20;hint:"Subtitles · S";onActivated:controls.menu("sub",this)}
+            ActionButton {icon:"audio";width:actions.buttonWidth;iconSize:20;hint:"Audio tracks · A";onActivated:controls.menu("audio",this)}
             ActionButton {pill:true;label:mpv.speed.toFixed(Math.abs(mpv.speed*10-Math.round(mpv.speed*10))<0.001?1:2)+"×";textSize:13;width:Math.max(48,label.length*8+16);height:32;y:4;hint:"Playback speed";onActivated:controls.menu("speed",this)}
-            ActionButton {icon:"playlist";width:actions.buttonWidth;iconSize:18;hint:"Playlist · L";onActivated:controls.playlistRequested()}
-            ActionButton {objectName:"fullscreenButton";icon:playerWindow.fullscreen?"exitFullscreen":"fullscreen";width:actions.buttonWidth;iconSize:18;checked:playerWindow.fullscreen;hint:playerWindow.fullscreen?"Exit fullscreen · F":"Fullscreen · F";onActivated:playerWindow.toggleFullscreen()}
-            ActionButton {icon:"more";width:actions.buttonWidth;iconSize:18;hint:"More options";onActivated:controls.menu("context",this)}
+            ActionButton {icon:"playlist";width:actions.buttonWidth;iconSize:20;hint:"Playlist · L";onActivated:controls.playlistRequested()}
+            ActionButton {objectName:"fullscreenButton";icon:playerWindow.fullscreen?"exitFullscreen":"fullscreen";width:actions.buttonWidth;iconSize:20;checked:playerWindow.fullscreen;hint:playerWindow.fullscreen?"Exit fullscreen · F":"Fullscreen · F";onActivated:playerWindow.toggleFullscreen()}
+            ActionButton {icon:"more";width:actions.buttonWidth;iconSize:20;hint:"More options";onActivated:controls.menu("context",this)}
         }
     }
 }

@@ -26,7 +26,7 @@
 #include <shobjidl.h>
 #include <algorithm>
 FramelessWindow::FramelessWindow(MpvController *c):m_controller(c) {
-    setTitle("FlowVault");setColor(QColor("#161e2f"));
+    setTitle("FlowVault");setColor(QColor("#222224"));
     setFlags(Qt::Window|Qt::FramelessWindowHint|Qt::WindowMinimizeButtonHint|Qt::WindowMaximizeButtonHint|Qt::WindowCloseButtonHint);
     if(qEnvironmentVariableIsSet("FLOW_TEST_BACKGROUND")) {
         setFlag(Qt::WindowDoesNotAcceptFocus);

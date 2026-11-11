@@ -21,21 +21,17 @@ Item {
     Keys.onReturnPressed:playCurrent()
     Keys.onEnterPressed:playCurrent()
     Keys.onSpacePressed:playCurrent()
-    Rectangle{anchors.fill:parent;color:UiPalette.background}
+    GlassSurface{anchors.fill:parent}
     Rectangle{
         id:brand;anchors{top:parent.top;bottom:parent.bottom;left:parent.left}
-        width:home.width>=480?home.width*.28:0;visible:width>0;color:UiPalette.surface
+        width:home.width>=480?home.width*.28:0;visible:width>0;color:UiPalette.field
         Rectangle{anchors{right:parent.right;top:parent.top;bottom:parent.bottom}width:1;color:UiPalette.border}
         Column{
             anchors.centerIn:parent;spacing:5
             Image{source:"qrc:/branding/flowplayer.png";width:Math.min(96,brand.width-32);height:width;sourceSize:Qt.size(192,192);fillMode:Image.PreserveAspectFit;anchors.horizontalCenter:parent.horizontalCenter}
-            Text{text:"FlowPlayer";color:UiPalette.text;font.pixelSize:18;anchors.horizontalCenter:parent.horizontalCenter}
+            Text{text:"FlowVault";color:UiPalette.text;font.pixelSize:18;anchors.horizontalCenter:parent.horizontalCenter}
             Text{text:"0.4";color:UiPalette.muted;font.pixelSize:11;anchors.horizontalCenter:parent.horizontalCenter}
         }
-    }
-    Rectangle{
-        anchors{left:brand.right;right:parent.right;top:parent.top;bottom:parent.bottom}
-        gradient:Gradient{GradientStop{position:0;color:UiPalette.surfaceTop}GradientStop{position:1;color:UiPalette.surfaceBottom}}
     }
     Column{
         id:actions;anchors{left:brand.right;right:parent.right;top:parent.top;leftMargin:19;rightMargin:20;topMargin:46}spacing:2
