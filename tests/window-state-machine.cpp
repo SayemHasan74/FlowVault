@@ -1,6 +1,5 @@
 #include "WindowStateMachine.h"
 #include "CompactResizePolicy.h"
-#include "NativeButtonPress.h"
 #include <iostream>
 #include <random>
 #include <cstdlib>
@@ -52,12 +51,6 @@ int main() {
     rapid.toggle(Mode::Mini,full,mini);const QRect expanded(12,34,800,450);rapid.resizeToWindowed(expanded);
     require(rapid.current().mode==Mode::Windowed&&rapid.current().geometry==expanded&&rapid.depth()==0,"manual compact expansion starts normal geometry");
     rapid.toggle(Mode::Mini,full,mini);rapid.toggle(Mode::Mini,full,mini);require(rapid.current().geometry==expanded,"button still restores expanded geometry exactly");
-    NativeButtonPress maxButton;
-    require(!maxButton.release(true),"unpaired native maximize release ignored");
-    maxButton.press();require(maxButton.release(true),"captured client release activates native maximize");
-    require(!maxButton.release(true),"duplicate native release does not restore immediately");
-    maxButton.press();require(!maxButton.release(false),"drag outside maximize cancels activation");
-    maxButton.press();maxButton.cancel();require(!maxButton.release(true),"capture loss cancels maximize click");
     Model maximized(windowed);maximized.setBaseMode(Mode::Maximized);maximized.observe(QRect(0,0,1920,1040));
     require(maximized.windowedGeometry()==windowed,"maximize observations preserve normal bounds");
     const QRect restore=maximized.windowedGeometry();maximized.setBaseMode(Mode::Windowed);maximized.observe(restore);

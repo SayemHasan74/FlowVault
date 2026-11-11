@@ -7,3 +7,5 @@ The dock remains 97 logical pixels tall at full scale. Icons are rounded to abou
 Validation uses the existing muted background input test and scene captures with the HTML reference scene and an SRT track. See `tests/results/direct-glass-final/summary.json` and the local captures. Actual desktop transitions and 4K GPU/frame pacing are outside this check.
 
 The checked-in QSB is generated with Qt 6.12 `qsb --glsl 120,150,330,440 -o assets/shaders/glass.frag.qsb assets/shaders/glass.frag`.
+
+Color refinement: use the HTML's 190% saturation, 36% base tint, and brighter top highlight while retaining a single texture sample. Removed the unused legacy maximize-press helper and its test-only cases; current native routing remains covered. The muted input check and remaining window-state tests passed. New capture and executable hash: `tests/results/glass-color/`.

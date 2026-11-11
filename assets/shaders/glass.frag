@@ -24,9 +24,12 @@ void main() {
     // A single sample avoids repeated outlines from text behind the panel.
     vec3 video=texture(videoTexture,uv).rgb;
     float light=dot(video,vec3(0.2126,0.7152,0.0722));
-    vec3 color=mix(video,vec3(0.055,0.079,0.13),0.48+0.24*light);
-    float gloss=0.15*max(0.0,1.0-qt_TexCoord0.y/0.48);
-    float edge=smoothstep(-1.6,-0.5,d)*(0.23+0.23*(1.0-qt_TexCoord0.y));
+    // Match the reference's 190% saturation and 36% blue-black tint.
+    vec3 vivid=clamp(mix(vec3(light),video,1.90),0.0,1.0);
+    float tint=0.36+0.27*smoothstep(0.62,0.95,light);
+    vec3 color=mix(vivid,vec3(18.0,26.0,44.0)/255.0,tint);
+    float gloss=0.26*max(0.0,1.0-qt_TexCoord0.y/0.48);
+    float edge=smoothstep(-1.6,-0.5,d)*(0.31+0.20*(1.0-qt_TexCoord0.y));
     color=mix(color,vec3(1.0),gloss+edge);
     fragColor=vec4(color,1.0)*coverage*ubuf.qt_Opacity;
 }
